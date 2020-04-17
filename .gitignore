@@ -1,0 +1,11 @@
+BUILD
+.mbed
+update_key.key
+update_certificate.pem
+mbed-cloud-client
+mbed-os
+drivers/COMPONENT_ATECC608A
+drivers/COMPONENT_WIFI_ISM43362
+TESTS/pelion-e2e-python-test-library
+drivers/COMPONENT_ATECC608A/mbed-cryptoauthlib
+drivers/COMPONENT_ATECC608A/mbed-cryptoauthlib/cryptoauthlib
