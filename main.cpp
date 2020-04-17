@@ -49,6 +49,11 @@
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #endif
 
+// Asset Tracking demo libraries
+#include "BG96_GNSS.h"
+#include "TMP06.h"
+#include "FXPQ3115.h"
+
 // event based LED blinker, controlled via pattern_resource
 #ifndef MCC_MEMORY
 static Blinky blinky;
@@ -72,6 +77,11 @@ static M2MResource* pattern_res;
 static M2MResource* blink_res;
 static M2MResource* unregister_res;
 static M2MResource* factory_reset_res;
+static M2MResource* latitude_res;
+static M2MResource* longitude_res;
+static M2MResource* altitude_res;
+static M2MResource* temperature_res;
+static M2MResource* pressure_res;
 
 void unregister(void);
 
@@ -282,6 +292,26 @@ void main_application(void)
                  M2MBase::POST_ALLOWED, NULL, false, (void*)unregister_triggered, (void*)sent_callback);
     unregister_res->set_delayed_response(true);
 
+    // Create resource for Latitude. Path of this resource will be: 3336/0/5514.
+    latitude_res = mbedClient.add_cloud_resource(3336, 0, 5514, "latitude_resource", M2MResourceInstance::STRING,
+                              M2MBase::GET_ALLOWED, "0", true, nullptr, (void*)notification_status_callback);
+    
+    // Create resource for Longitude. Path of this resource will be: 3336/0/5515.
+    longitude_res = mbedClient.add_cloud_resource(3336, 0, 5515, "longitude_resource", M2MResourceInstance::STRING,
+                              M2MBase::GET_ALLOWED, "0", true, nullptr, (void*)notification_status_callback);
+    
+    // Create resource for Altitude. Path of this resource will be: 6/0/2.
+    altitude_res = mbedClient.add_cloud_resource(6, 0, 2, "altitude_resource", M2MResourceInstance::FLOAT,
+                              M2MBase::GET_ALLOWED, 0, true, nullptr, (void*)notification_status_callback);
+
+    // Create resource for Temperature. Path of this resource will be: 3303/0/5700.
+    temperature_res = mbedClient.add_cloud_resource(3303, 0, 5700, "temperature_resource", M2MResourceInstance::FLOAT,
+                              M2MBase::GET_ALLOWED, 0, true, nullptr, (void*)notification_status_callback);
+
+    // Create resource for Pressure. Path of this resource will be: 3315/0/5700.
+    pressure_res = mbedClient.add_cloud_resource(3315, 0, 5700, "pressure_resource", M2MResourceInstance::FLOAT,
+                              M2MBase::GET_ALLOWED, "100", true, nullptr, (void*)notification_status_callback);
+
     // Create optional Device resource for running factory reset for the device. Path of this resource will be: 3/0/5.
     factory_reset_res = M2MInterfaceFactory::create_device()->create_resource(M2MDevice::FactoryReset);
     if (factory_reset_res) {
@@ -324,9 +354,60 @@ void main_application(void)
     queue->dispatch_forever();
 #else
 
-    // Check if client is registering or registered, if true sleep and repeat.
+    /* declare GPS data variables */
+    BG96_GNSS bg96;
+    gps_data GPS;
+    
+    /* init temperature sensor */
+    TMP06 temp_sensor(P0_1);
+    float temperature;
+
+    /* init pressure sensor */
+    FXPQ3115 pres_sensor(P0_13, P0_14);
+    if (pres_sensor.sensor_init() == SUCCESS) {
+        printf("Pressure sensor is up!\r\n");
+    }
+
     while (mbedClient.is_register_called()) {
-        mcc_platform_do_wait(100);
+        mcc_platform_do_wait(2000); // print "." every 2 s
+        printf(".");
+        if (mbedClient.is_client_registered()) {
+            /* device registered and ready to send data */
+            printf("\r\n");
+
+            /* init GPS device */
+            bg96.set_gps_power(true);
+
+            break; 
+        }
+    }
+
+    /* loop this while device is registered */
+    while (mbedClient.is_client_registered()) {
+        /* sleep for 10 s */
+        mcc_platform_do_wait(10000);
+    
+        /* read localization and altitude */
+        if (bg96.get_gps_data(&GPS) == SUCCESS) {
+            bg96.print_gps_data(&GPS);
+            
+            printf("[GPS] Lat: %s, Lon: %s, Altitude: %s\n", GPS.lat, GPS.lon, GPS.altitude);
+            latitude_res->set_value((uint8_t *)GPS.lat, sizeof(GPS.lat));
+            longitude_res->set_value((uint8_t *)GPS.lon, sizeof(GPS.lat));
+            altitude_res->set_value_float(atof(GPS.altitude));
+        }
+        
+        /* read temperature */
+        if (temp_sensor.read(&temperature) == SUCCESS) {
+            printf("[TMP06] Temperature: %f C\n", temperature);
+            temperature_res->set_value_float(temperature);
+        }
+
+        /* read pressure */
+        if (pres_sensor.read_oneshotMode_bar() == SUCCESS) {
+            printf("[FXPQ3115] Pressure: %f hPa\n", (float)pres_sensor.print_pressure()/100);
+            pressure_res->set_value_float((float)pres_sensor.print_pressure()/100);
+        }
     }
 
     // Client unregistered, disconnect and exit program.

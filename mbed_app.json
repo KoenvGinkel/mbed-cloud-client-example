@@ -14,6 +14,7 @@
             "events.shared-stacksize"                   : 2048,
             "events.shared-eventsize"                   : 1536,
             "update-client.storage-locations"           : 1,
+            "mbed-cloud-client.psa-support"             : 1,
             "mbed-trace.enable"                         : null,
             "nsapi.default-wifi-security"               : null,
             "nsapi.default-wifi-ssid"                   : null,            
