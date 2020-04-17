@@ -1,22 +1,56 @@
 {
     "macros": [
-        "ARM_UC_USE_PAL_BLOCKDEVICE=1"
+        "ARM_UC_USE_PAL_BLOCKDEVICE=1",
+        "MBEDTLS_USE_PSA_CRYPTO"
     ],
     "target_overrides": {
         "*": {
-            "target.features_add"                       : ["BOOTLOADER", "STORAGE"],
+            "target.features_add"                       : ["STORAGE"],
             "platform.stdio-baud-rate"                  : 115200,
             "platform.stdio-convert-newlines"           : true,
             "platform.stdio-buffered-serial"            : true,
             "platform.stdio-flush-at-exit"              : true,
             "rtos.main-thread-stack-size"               : 5120,
             "events.shared-stacksize"                   : 2048,
-            "events.shared-eventsize"                   : 2048,
+            "events.shared-eventsize"                   : 1536,
             "update-client.storage-locations"           : 1,
             "mbed-trace.enable"                         : null,
-            "nsapi.default-wifi-security"               : "WPA_WPA2",
-            "nsapi.default-wifi-ssid"                   : "\"SSID\"",
-            "nsapi.default-wifi-password"               : "\"Password\""
+            "nsapi.default-wifi-security"               : null,
+            "nsapi.default-wifi-ssid"                   : null,            
+            "nsapi.default-wifi-password"               : null,
+            "nsapi.default-cellular-apn"                : null,
+            "nsapi.default-cellular-sim-pin"            : null,
+            "nsapi.default-cellular-username"           : null,
+            "nsapi.default-cellular-password"           : null
+
+        },        
+        "HANI_IOT": {
+            "target.components_add"                      : ["SPIF", "FLASHIAP"],
+            "target.extra_labels_add"                    : [ "PSA" ],
+            "target.macros_add"                          : [ "DISABLE_ERROR_DESCRIPTION" ],
+            "target.restrict_size"                       : "0x5BC00",
+
+            "storage.storage_type"                       : "FILESYSTEM",
+            "storage_filesystem.filesystem"              : "LITTLE",
+            "storage_filesystem.blockdevice"             : "SPIF",
+            "storage_filesystem.internal_base_address"   : "0x94000",
+            "storage_filesystem.rbp_internal_size"       : "(15*1024)",
+            "storage_filesystem.external_base_address"   : "0x0",
+            "storage_filesystem.external_size"           : "(1024*1024*1)",
+
+            "target.network-default-interface-type"      : "CELLULAR",
+            "cellular.use-apn-lookup"                    : false,
+            "cellular.debug-at"                          : false,
+            "lwip.ipv4-enabled"                          : true,
+            "lwip.ethernet-enabled"                      : false,
+            "lwip.ppp-enabled"                           : false,
+            "QUECTEL_BG96.tx"                            : "D1",
+            "QUECTEL_BG96.rx"                            : "D0",
+            "QUECTEL_BG96.pwr"                           : "A5",
+            "QUECTEL_BG96.rst"                           : "A4",
+            "QUECTEL_BG96.provide-default"               : true,
+            "QUECTEL_BG96.polarity"                      : 1,
+            "button-pinname"                             : "SW1"
         },
         "Freescale": {
             "lwip.mem-size"                             : 12500

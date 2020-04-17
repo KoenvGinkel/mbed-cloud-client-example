@@ -37,7 +37,7 @@
 
 /* Sets the flag to enable update support in Pelion Device Management Client */
 #if defined(__linux__) || defined(TARGET_LIKE_MBED) || defined(__SXOS__)
-    #define MBED_CLOUD_CLIENT_SUPPORT_UPDATE
+    // #define MBED_CLOUD_CLIENT_SUPPORT_UPDATE
 #endif
 
 /* Sets the download buffer for update client in bytes (min. 2048 bytes).
