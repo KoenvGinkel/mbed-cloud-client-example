@@ -19,10 +19,10 @@
             "nsapi.default-wifi-security"               : null,
             "nsapi.default-wifi-ssid"                   : null,            
             "nsapi.default-wifi-password"               : null,
-            "nsapi.default-cellular-apn"                : null,
             "nsapi.default-cellular-sim-pin"            : null,
-            "nsapi.default-cellular-username"           : null,
-            "nsapi.default-cellular-password"           : null
+            "nsapi.default-cellular-apn"                : "\"internet.gec.network\"",
+            "nsapi.default-cellular-username"           : "\"arkessa\"",
+            "nsapi.default-cellular-password"           : "\"arkessa\""
 
         },        
         "HANI_IOT": {
