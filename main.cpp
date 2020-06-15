@@ -54,6 +54,20 @@
 static Blinky blinky;
 #endif
 
+// Asset Tracking Demo
+#include "CellularNonIPSocket.h"
+
+// Power-on sequence for Shiratech BG96 shield
+void soft_power_on_bg96()
+{
+    DigitalOut pwr = MBED_CONF_QUECTEL_BG96_PWR;
+    DigitalOut rst = MBED_CONF_QUECTEL_BG96_RST;
+    // set high for pwr pin for 250 ms to perform soft power on
+    pwr = 1; 
+    ThisThread::sleep_for(250);
+    pwr = 0;
+}
+
 static void main_application(void);
 
 #if defined(MBED_CLOUD_APPLICATION_NONSTANDARD_ENTRYPOINT)
@@ -216,10 +230,11 @@ void main_application(void)
 
     // SimpleClient is used for registering and unregistering resources to a server.
     SimpleM2MClient mbedClient;
-
     // Save pointer to mbedClient so that other functions can access it.
     client = &mbedClient;
 
+    printf("Booting BG96 module\n"); 
+    soft_power_on_bg96();
     /*
      * Pre-initialize network stack and client library.
      *

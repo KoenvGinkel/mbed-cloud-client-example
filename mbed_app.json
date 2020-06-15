@@ -15,8 +15,8 @@
             "update-client.storage-locations"           : 1,
             "mbed-trace.enable"                         : null,
             "nsapi.default-wifi-security"               : "WPA_WPA2",
-            "nsapi.default-wifi-ssid"                   : "\"SSID\"",
-            "nsapi.default-wifi-password"               : "\"Password\""
+            "nsapi.default-wifi-ssid"                   : "\"Asus_IOT\"",
+            "nsapi.default-wifi-password"               : "\"cokolwiek\""
         },
         "Freescale": {
             "lwip.mem-size"                             : 12500
@@ -134,13 +134,30 @@
             "esp8266.provide-default"                   : true
         },
         "DISCO_L475VG_IOT01A": {
-            "target.network-default-interface-type"     : "WIFI",
+            "target.network-default-interface-type"     : "CELLULAR",
+            "ppp.ipv4-enabled": false,
+            "ppp.ipv6-enabled": true,
+            "lwip.ipv4-enabled": true,
+            "lwip.ipv6-enabled": true,
+            "lwip.ethernet-enabled": false,
+            "lwip.ppp-enabled": false,
+            "lwip.tcp-enabled": true,
+            "nsapi.default-cellular-apn": "\"apn\"",
+            "nsapi.default-cellular-username": "\"username\"",
+            "nsapi.default-cellular-password": "\"password\"",
+
+            "QUECTEL_BG96.provide-default": true,
+            "QUECTEL_BG96.tx": "D1",
+            "QUECTEL_BG96.rx": "D0",
+            "QUECTEL_BG96.pwr": "A5",
+            "QUECTEL_BG96.rst": "A4",
+            "QUECTEL_BG96.polarity": 1,
+
             "target.bootloader_img"                     : "tools/mbed-bootloader-disco_l475vg_iot01a-internal_qspif-kvstore-v4.1.0.bin",
             "target.header_offset"                      : "0x11000",
             "target.app_offset"                         : "0x11400",
-            "target.components_add"                     : ["QSPIF", "WIFI_ISM43362"],
+            "target.components_add"                     : ["QSPIF"],
             "bootloader-size"                           : "(36*1024)",
-            "ism43362.read-thread-stack-size"           : 1024,
             "led-pinname"                               : "LED1",
             "mbed-client.sn-coap-max-blockwise-payload-size" : 256,
             "mbed-client-pal.pal-max-frag-len"          : 1,
