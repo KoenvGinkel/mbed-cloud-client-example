@@ -55,6 +55,7 @@ static Blinky blinky;
 #endif
 
 // Asset Tracking Demo
+#include "LPS22HBSensor.h"
 #include "CellularNonIPSocket.h"
 
 // Power-on sequence for Shiratech BG96 shield
@@ -86,6 +87,11 @@ static M2MResource* pattern_res;
 static M2MResource* blink_res;
 static M2MResource* unregister_res;
 static M2MResource* factory_reset_res;
+static M2MResource* temperature_res;
+static M2MResource* pressure_res;
+
+static DevI2C lps22hb_i2c(PB_11,PB_10);
+static LPS22HBSensor lps22hb(&lps22hb_i2c);
 
 void unregister(void);
 
@@ -297,6 +303,14 @@ void main_application(void)
                  M2MBase::POST_ALLOWED, NULL, false, (void*)unregister_triggered, (void*)sent_callback);
     unregister_res->set_delayed_response(true);
 
+    // Create resource for Temperature. Path of this resource will be: 3303/0/5700.
+    temperature_res = mbedClient.add_cloud_resource(3303, 0, 5700, "temperature_resource", M2MResourceInstance::FLOAT,
+                              M2MBase::GET_ALLOWED, 0, true, nullptr, (void*)notification_status_callback);
+
+    // Create resource for Pressure. Path of this resource will be: 3315/0/5700.
+    pressure_res = mbedClient.add_cloud_resource(3315, 0, 5700, "pressure_resource", M2MResourceInstance::FLOAT,
+                              M2MBase::GET_ALLOWED, "100", true, nullptr, (void*)notification_status_callback);
+
     // Create optional Device resource for running factory reset for the device. Path of this resource will be: 3/0/5.
     factory_reset_res = M2MInterfaceFactory::create_device()->create_resource(M2MDevice::FactoryReset);
     if (factory_reset_res) {
@@ -347,9 +361,27 @@ void main_application(void)
     queue->dispatch_forever();
 #else
 
+    uint8_t sensor_id;
+    float temperature, pressure;
+
+    lps22hb.init(NULL);
+    lps22hb.enable();
+    lps22hb.read_id(&sensor_id);
+    printf("LPS22HB ID: 0x%X\r\n", sensor_id);
+
     // Check if client is registering or registered, if true sleep and repeat.
     while (mbedClient.is_register_called()) {
-        mcc_platform_do_wait(100);
+        mcc_platform_do_wait(10000);
+
+        /* read and send temperature */
+        lps22hb.get_temperature(&temperature);
+        printf("Temperature: %f C\n", temperature);
+        temperature_res->set_value_float(temperature);
+
+        /* read and send pressure */
+        lps22hb.get_pressure(&pressure);
+        printf("Pressure: %.2f mbar\n", pressure);
+        pressure_res->set_value_float(pressure);
     }
 
     // Client unregistered, disconnect and exit program.
