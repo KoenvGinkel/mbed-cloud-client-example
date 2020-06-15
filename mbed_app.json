@@ -142,9 +142,9 @@
             "lwip.ethernet-enabled": false,
             "lwip.ppp-enabled": false,
             "lwip.tcp-enabled": true,
-            "nsapi.default-cellular-apn": "\"apn\"",
-            "nsapi.default-cellular-username": "\"username\"",
-            "nsapi.default-cellular-password": "\"password\"",
+            "nsapi.default-cellular-apn": "\"internet.gec.network\"",
+            "nsapi.default-cellular-username": "\"arkessa\"",
+            "nsapi.default-cellular-password": "\"arkessa\"",
 
             "QUECTEL_BG96.provide-default": true,
             "QUECTEL_BG96.tx": "D1",
